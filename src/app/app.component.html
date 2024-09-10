@@ -1,1 +1,103 @@
-add code here!!
+
+<div class="container">
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Acciones
+        </button>
+        <div class="dropdown-menu">
+            <li>
+                <button class="dropdown-item" (click)="openForm()">Nuevo</button>
+            </li>
+            <li>
+                <button class="dropdown-item" (click)="deletedSelected()" [disabled]="!selectedFiles.length">Borrar</button>
+            </li>
+        </div>
+    </div>
+    <table class="table mt-4">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Dueños</th>
+          </tr>
+        </thead>
+        <tbody>       
+                <tr *ngFor="let file of sortedFiles">
+                    <td>
+                        <input type="checkbox" (change)="selectedFile(file)" [checked]="selectedFiles.includes(file)">
+                    </td>     
+                    <td>
+                        <span *ngIf="file.name.length <= 10">{{ file.name }}</span>
+                        <span *ngIf="file.name.length > 10" [attr.title]="file.name">{{ file.name | slice:0:10 }}</span>
+                    </td>  
+                    <td>{{ file.creation | date: 'shortDate' }}</td>     
+                    <td>
+                        <img *ngFor="let owner of file.owners.slice(0, 3)" [src]="owner.avatarUrl" [alt]="owner.name" class="owner-avatar">
+                        <span *ngIf="file.owners.length > 3">+{{ file.owners.length - 3 }}</span>
+                    </td>    
+                </tr>
+        </tbody>
+      </table>
+</div>
+
+
+
+
+<!-- Modal para crear un nuevo archivo/carpeta -->
+<div class="modal fade" id="nuevoArchivoModal" tabindex="-1" aria-labelledby="nuevoArchivoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="nuevoArchivoModalLabel">Nuevo Archivo/Carpeta</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form #formArchivo="ngForm" (ngSubmit)="crearArchivo(formArchivo)">
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input type="text" id="nombre" name="nombre" class="form-control" [(ngModel)]="nuevoArchivo.nombre" required>
+            </div>
+            
+            <!-- Fecha -->
+            <div class="mb-3">
+              <label for="fecha" class="form-label">Fecha</label>
+              <input type="date" id="fecha" name="fecha" class="form-control" [(ngModel)]="nuevoArchivo.fecha" required>
+            </div>
+            
+            <!-- Tipo de Archivo/Carpeta -->
+            <div class="mb-3">
+              <label for="tipoArchivo" class="form-label">Tipo de Archivo</label>
+              <select id="tipoArchivo" name="tipoArchivo" class="form-select" [(ngModel)]="nuevoArchivo.tipo" required>
+                <option value="Archivo">Archivo</option>
+                <option value="Carpeta">Carpeta</option>
+              </select>
+            </div>
+  
+            <!-- Opcional: Carpetas existentes -->
+            <div *ngIf="nuevoArchivo.tipo === 'Carpeta'" class="mb-3">
+              <label for="carpetaPadre" class="form-label">Carpeta existente</label>
+              <select id="carpetaPadre" class="form-select" [(ngModel)]="nuevoArchivo.carpetaPadre" name="carpetaPadre">
+                <option *ngFor="let carpeta of carpetasExistentes" [value]="carpeta">{{ carpeta }}</option>
+              </select>
+            </div>
+  
+            <!-- Dueños -->
+            <div class="mb-3">
+              <label for="duenos" class="form-label">Dueños</label>
+              <input type="text" id="duenos" class="form-control" [(ngModel)]="duenoActual" name="duenos">
+              <button type="button" class="btn btn-primary mt-2" (click)="agregarDueno()">Agregar Dueño</button>
+              <div *ngFor="let dueno of nuevoArchivo.duenos; let j = index" class="mt-2">
+                <span>{{ dueno }}</span>
+                <button type="button" class="btn btn-danger btn-sm" (click)="eliminarDueno(j)">Eliminar</button>
+              </div>
+            </div>
+  
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
