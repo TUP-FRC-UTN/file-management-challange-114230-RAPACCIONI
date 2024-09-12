@@ -1,0 +1,23 @@
+<table class="table mt-4">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Fecha</th>
+        <th scope="col">Dueños</th>
+      </tr>
+    </thead>
+    <tbody>       
+            <tr *ngFor="let file of files">
+                <td>
+                    <input type="checkbox" (change)="selectFile(file)" [checked]="selectedFiles.includes(file)">
+                </td>     
+                <td>{{ file.name }}</td> 
+                <td>{{ file.creation | date: 'shortDate' }}</td>     
+                <td>
+                    <img *ngFor="let owner of file.owners.slice(0, 3)" [src]="owner.avatarUrl" [alt]="owner.name" class="owner-avatar">
+                    <span *ngIf="file.owners.length > 3">+{{ file.owners.length - 3 }}</span>
+                </td>    
+            </tr>
+    </tbody>
+  </table>

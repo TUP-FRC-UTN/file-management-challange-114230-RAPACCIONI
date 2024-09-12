@@ -1,0 +1,49 @@
+<div class="modal-header">
+    <h5 class="modal-title" id="nuevoArchivoModalLabel">Nuevo Archivo/Carpeta</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+<form #formArchivo="ngForm" (ngSubmit)="createFile(formArchivo)">
+    <!-- Nombre -->
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input type="text" id="nombre" name="nombre" class="form-control" [(ngModel)]="newFile.nombre" required>
+    </div>
+
+    <!-- Fecha -->
+    <div class="mb-3">
+      <label for="fecha" class="form-label">Fecha</label>
+      <input type="date" id="fecha" name="fecha" class="form-control" [(ngModel)]="newFile.fecha" required>
+    </div>
+
+    <!-- Tipo de Archivo/Carpeta -->
+    <div class="mb-3">
+      <label for="tipoArchivo" class="form-label">Tipo de Archivo</label>
+      <select id="tipoArchivo" name="tipoArchivo" class="form-select" [(ngModel)]="newFile.tipo" required>
+        <option value="Archivo">Archivo</option>
+        <option value="Carpeta">Carpeta</option>
+      </select>
+    </div>
+
+    <!-- Opcional: Carpetas existentes -->
+    <div *ngIf="newFile.tipo === 'Carpeta'" class="mb-3">
+      <label for="carpetaPadre" class="form-label">Carpeta existente</label>
+      <select id="carpetaPadre" class="form-select" [(ngModel)]="newFile.carpetaPadre" name="carpetaPadre">
+        <option *ngFor="let folder of existingFolders" [value]="folder">{{ folder }}</option>
+      </select>
+    </div>
+
+    <!-- Dueños -->
+    <div class="mb-3">
+      <label for="duenos" class="form-label">Dueños</label>
+      <input type="text" id="duenos" class="form-control" [(ngModel)]="duenioActual" name="duenos">
+      <button type="button" class="btn btn-primary mt-2" (click)="addDuenio()">Agregar Dueño</button>
+      <div *ngFor="let dueno of newFile.duenios; let j = index" class="mt-2">
+        <span>{{ dueno }}</span>
+        <button type="button" class="btn btn-danger btn-sm" (click)="deleteDuenio(j)">Eliminar</button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+  </form>
+</div>

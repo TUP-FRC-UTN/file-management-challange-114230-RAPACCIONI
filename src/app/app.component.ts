@@ -5,48 +5,37 @@ import { FILE_LIST } from '../data/file.storage';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Modal } from 'bootstrap';
+import { FileActionsComponent } from "./file-actions/file-actions.component";
+import { FileListComponent } from "./file-list/file-list.component";
+import { FileFormComponent } from "./file-form/file-form.component";
 
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule],
+  imports: [RouterOutlet, CommonModule, FormsModule, FileActionsComponent, FileListComponent, FileFormComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
 export class AppComponent {
 
 
-
   title = 'file-management';
+
 
   files: FileItem[] = FILE_LIST;
   selectedFiles: FileItem[] = [];
 
-  archivos: any[] = [];
-  carpetasExistentes: string[] = ['Carpeta 1', 'Carpeta 2'];
-  nuevoArchivo: any = {
-    nombre: '',
-    fecha: '',
-    tipo: 'Archivo',
-    carpetaPadre: '',
-    duenos: []
-  };
-  duenoActual: string = '';
 
   // ordenar los archivos y carpetas
   get sortedFiles(): FileItem[]{
-    return this.files.sort((a, b) => {
-      // primero mostramos carpetas, despues archivos
-      if(a.type === FileType.FOLDER && b.type === FileType.FILE) return -1;
-      if(a.type === FileType.FILE && b.type === FileType.FOLDER) return 1;
-      return a.name.localeCompare(b.name);
-    });
+    return this.files
+    .filter(file => file.name)
+    .sort((a, b) => a.name.localeCompare(b.name));
   }
 
-
   // seleccionar archivos y carpetas
-  selectedFile(file: FileItem) {
+  handleFileSelected(file: FileItem) {
     if(this.selectedFiles.includes(file)){
       this.selectedFiles = this.selectedFiles.filter(f => f !== file);
     } else{
@@ -56,7 +45,7 @@ export class AppComponent {
 
 
   // eliminar los archivos/carpetas
-  deletedSelected() {
+  handleDeletedFiles() {
     if(this.selectedFiles.length > 1){
       if(confirm("Seguro que desea eliminar los archivos seleccionados?")){
         this.selectedFiles.forEach(file => {
@@ -71,29 +60,28 @@ export class AppComponent {
     }
   }
 
-  // abrit formulario de alta
-  openForm() {
-    const modalElement = document.getElementById('nuevoArchivoModal')!;
+  // abrir el formulario de archivo nuevo
+  handleNewFile() {
+    const modalElement = document.getElementById('newFileModal')!;
     const modal = new Modal(modalElement);
     modal.show();
   }
 
-  crearArchivo(form: NgForm) {
-    if (form.valid) {
-      this.archivos.push({ ...this.nuevoArchivo });
-      form.reset();
+  addNewFile(newFile: any) {
+
+    const duenos = newFile.duenos ? newFile.duenos : [];
+
+    if (!newFile.nombre || newFile.nombre.trim() === '') {
+      console.error('El nombre del archivo es obligatorio');
+      return;
     }
-  }
 
-  eliminarDueno(index: number) {
-    this.nuevoArchivo.duenos.splice(index, 1);
+    this.files.push({
+      id: (this.files.length + 1).toString(),
+      name: newFile.name,
+      creation: new Date(newFile.fecha),
+      owners: duenos.map((owner: string) => ({name: owner, avatarUrl: 'default.png'})),
+      type: newFile.type === 'Archivo' ? FileType.FILE : FileType.FOLDER
+    });
   }
-
-  agregarDueno() {
-    if (this.duenoActual && !this.nuevoArchivo.duenos.includes(this.duenoActual)) {
-      this.nuevoArchivo.duenos.push(this.duenoActual);
-      this.duenoActual = '';
-    }
-  }
-
 }
